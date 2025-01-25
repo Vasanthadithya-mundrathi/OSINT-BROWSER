@@ -196,10 +196,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             OSINT Browser
           </Typography>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              mr: 2,
+              display: { xs: 'none', sm: 'block' },
+              color: 'text.secondary',
+              '&:hover': {
+                color: 'primary.main',
+              },
+            }}
+          >
+            Developed by SHADOW
+          </Typography>
           <IconButton
             color="inherit"
             component="a"
-            href="https://github.com/yourusername/osint-browser"
+            href="https://github.com/Vasanthadithya-mundrathi/OSINT-BROWSER"
             target="_blank"
             rel="noopener noreferrer"
             sx={{
