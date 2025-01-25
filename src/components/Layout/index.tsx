@@ -14,6 +14,8 @@ import {
   ListItemIcon,
   ListItemText,
   CssBaseline,
+  Tooltip,
+  useMediaQuery,
 } from '@mui/material';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -43,6 +45,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
   }),
   overflowX: 'hidden',
   boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)',
+  backgroundColor: theme.palette.background.paper,
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -55,6 +58,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
+  backgroundColor: theme.palette.background.paper,
 });
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -152,13 +156,10 @@ const StyledListItem = styled(ListItemButton)<{ selected?: boolean }>(({ theme, 
   }),
 }));
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [open, setOpen] = useState(!isMobile);
   const location = useLocation();
 
   const handleDrawerToggle = () => {
@@ -167,20 +168,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'WHOIS Lookup', icon: <SearchIcon />, path: '/whois' },
-    { text: 'DNS Lookup', icon: <DnsIcon />, path: '/dns' },
-    { text: 'Subdomain Scanner', icon: <AccountTreeIcon />, path: '/subdomain-scanner' },
-    { text: 'IP Tool', icon: <RouterIcon />, path: '/ip-tool' },
-    { text: 'Shadow Personas', icon: <PersonSearchIcon />, path: '/shadow-personas' },
-    { text: 'Dark Web Scanner', icon: <DarkModeIcon />, path: '/dark-web' },
-    { text: 'AI Assistant', icon: <SmartToyIcon />, path: '/ai-assistant' },
-    { text: 'Data Analysis', icon: <AssessmentIcon />, path: '/data-analysis' },
-    { text: 'File Scanner', icon: <FolderOpenIcon />, path: '/file-scanner' },
-    { text: 'Hash Checker', icon: <SecurityIcon />, path: '/hash-checker' },
+    { text: 'WHOIS Lookup', icon: <SearchIcon />, path: '/tools/whois' },
+    { text: 'DNS Lookup', icon: <DnsIcon />, path: '/tools/dns' },
+    { text: 'Subdomain Scanner', icon: <AccountTreeIcon />, path: '/tools/subdomain' },
+    { text: 'IP Tool', icon: <RouterIcon />, path: '/tools/ip' },
+    { text: 'Shadow Personas', icon: <PersonSearchIcon />, path: '/tools/shadow-personas' },
+    { text: 'Dark Web Scanner', icon: <DarkModeIcon />, path: '/tools/dark-web' },
+    { text: 'AI Assistant', icon: <SmartToyIcon />, path: '/tools/ai-assistant' },
+    { text: 'Data Analysis', icon: <AssessmentIcon />, path: '/tools/data-analysis' },
+    { text: 'File Scanner', icon: <FolderOpenIcon />, path: '/tools/file-scanner' },
+    { text: 'Hash Checker', icon: <SecurityIcon />, path: '/tools/hash-checker' },
   ];
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
@@ -189,7 +190,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             aria-label="toggle drawer"
             onClick={handleDrawerToggle}
             edge="start"
-            sx={{ mr: 2 }}
+            sx={{
+              marginRight: 2,
+              ...(open && { display: 'none' }),
+            }}
           >
             {open ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
@@ -209,21 +213,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             Developed by SHADOW
           </Typography>
-          <IconButton
-            color="inherit"
-            component="a"
-            href="https://github.com/Vasanthadithya-mundrathi/OSINT-BROWSER"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              '&:hover': {
-                transform: 'scale(1.1)',
-              },
-              transition: 'transform 0.2s',
-            }}
-          >
-            <GitHubIcon />
-          </IconButton>
+          <Tooltip title="View on GitHub">
+            <IconButton
+              color="inherit"
+              component="a"
+              href="https://github.com/Vasanthadithya-mundrathi/OSINT-BROWSER"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                },
+                transition: 'transform 0.2s',
+              }}
+            >
+              <GitHubIcon />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <StyledDrawer variant="permanent" open={open}>
@@ -233,25 +239,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
+        <List
+          sx={{
+            pt: 2,
+            pb: 2,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            maxHeight: 'calc(100vh - 64px)',
+          }}
+        >
           {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
-              <StyledListItem
-                component={Link}
-                to={item.path}
-                selected={location.pathname === item.path}
-              >
-                <StyledListItemIcon>
-                  {item.icon}
-                </StyledListItemIcon>
-                <StyledListItemText
-                  primary={item.text}
-                  sx={{
-                    opacity: open ? 1 : 0,
-                    visibility: open ? 'visible' : 'hidden',
-                  }}
-                />
-              </StyledListItem>
+            <ListItem key={item.text} disablePadding>
+              <Tooltip title={!open ? item.text : ''} placement="right" arrow>
+                <StyledListItem
+                  component={Link}
+                  to={item.path}
+                  selected={location.pathname === item.path}
+                >
+                  <StyledListItemIcon>
+                    {item.icon}
+                  </StyledListItemIcon>
+                  <StyledListItemText
+                    primary={item.text}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      visibility: open ? 'visible' : 'hidden',
+                    }}
+                  />
+                </StyledListItem>
+              </Tooltip>
             </ListItem>
           ))}
         </List>
@@ -268,10 +284,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
+          mt: '64px',
         }}
       >
-        <DrawerHeader />
-        {children}
+        <Outlet />
       </Box>
     </Box>
   );

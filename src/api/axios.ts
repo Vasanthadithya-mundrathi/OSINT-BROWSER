@@ -1,47 +1,41 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  timeout: 15000,
+  baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add request interceptor
+// Add a request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Do something before request is sent
+    // You can add auth tokens or other headers here
     return config;
   },
   (error) => {
-    // Do something with request error
     return Promise.reject(error);
   }
 );
 
-// Add response interceptor
+// Add a response interceptor
 api.interceptors.response.use(
   (response) => {
-    // Any status code within the range of 2xx triggers this function
     return response;
   },
   (error) => {
-    // Any status codes outside the range of 2xx trigger this function
+    // Handle errors globally
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
+      // Server responded with a status code outside the 2xx range
       console.error('Response Error:', error.response.data);
-      return Promise.reject(new Error(error.response.data.error || 'Server error'));
     } else if (error.request) {
-      // The request was made but no response was received
+      // Request was made but no response was received
       console.error('Request Error:', error.request);
-      return Promise.reject(new Error('No response from server. Please check if the server is running.'));
     } else {
-      // Something happened in setting up the request that triggered an Error
+      // Something happened in setting up the request
       console.error('Error:', error.message);
-      return Promise.reject(new Error('Failed to send request. Please check your connection.'));
     }
+    return Promise.reject(error);
   }
 );
 
